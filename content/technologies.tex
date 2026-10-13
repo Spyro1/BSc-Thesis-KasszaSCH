@@ -2,11 +2,19 @@
 \chapter{Felhasznált technológiák}
 %----------------------------------------------------------------------------
 
+A projekt megvalósításához számos modern technológiát alkalmaztam, amelyek lehetővé tették a hatékony fejlesztést és egy skálázható rendszer kialakítását. 
+A következőkben részletesen bemutatom az egyes technológiákat és azok szerepét a rendszerben.
 \section{Szerver (Backend)}
 
 \subsection{Python}
 
+A Python \cite{Python} egy magas szintű, általános célú programozási nyelv, amelyet Guido van Rossum hozott létre 1991-ben. Könnyen olvasható szintaxisa és széles körű könyvtárkészlete miatt népszerű a webfejlesztés, adatfeldolgozás, gépi tanulás és sok más területen. A Python dinamikus típusosságot és objektumorientált programozást támogat, valamint lehetőséget biztosít aszinkron programozásra is. A projekthez a Python 3.13.3-as verzióját használtam.
+
 \subsubsection{FastAPI}
+
+A backend (szerver) fejlesztéséhez a FastAPI \cite{FastAPI} keretrendszert választottam, ami egy modern, gyors webkeretrendszer Python nyelven, amely lehetővé teszi REST-ful\footnote{REST: Representational State Transfer} API-k egyszerű fejlesztését. Fő előnye, hogy standard Python típusannotációkat használ és ezzel típusbiztonságot nyújt. Emellett aszinkron működést biztosít az endpointoknak az I/O-intenzív feladatoknál (pl. adatbázis lekérdesék, külső API hívások), gyors fejlesztést tesz lehetővé a beépített validáció és dokumentáció révén, és automatikus Swagger \cite{Swagger} dokumentációt is az endpointoknak\footnote{Endpoint: (magyarul végpont) Egy digitális cím (általában egy URL), amin keresztül a szerver-alkalmazás (API - Application Programming Interface) fogadja a külső kéréseket, és válaszként adatot szolgáltat.}.
+
+\vfill
 
 \subsubsection{PostgreSQL}
 
