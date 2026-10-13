@@ -1,0 +1,178 @@
+erDiagram
+    direction TB
+
+    SystemSetting {
+        int id PK
+        bool maintenance_mode
+        bool sso_enabled
+        bool local_auth_enabled
+        bool registration_enabled
+        decimal credit_limit
+        decimal max_transaction_amount
+    }
+
+    User {
+        uuid id PK
+        string name
+        string email
+        string avatar_url
+        string sub
+        string provider
+        string password_hash
+        json preferences
+        string schacc
+    }
+
+    Group {
+        int id PK
+        string name
+        int pek_id
+        enum status
+        string payment_link
+        decimal credit_limit
+        decimal max_transaction_amount
+        decimal balance
+    }
+
+    Role {
+        int id PK
+        string name
+        int group_id FK
+        boolean can_be_granted
+    }
+
+    Scope {
+        int id PK
+        int role_id FK
+        string scope
+        string permission
+    }
+
+    GroupUserRole {
+        int id PK
+        uuid user_id FK
+        int role_id FK
+        int group_id FK
+        decimal user_balance
+    }
+
+    AuditLog {
+        int id PK
+        uuid user_id FK
+        int group_id FK
+        string action
+        string description
+        json payload
+        datetime timestamp
+    }
+
+    GroupInviteLink {
+        int id PK
+        uuid token
+        int group_id FK
+        uuid creator_id FK
+        int max_uses
+        bool is_active
+        datetime expires_at
+        int usage_count
+    }
+
+    GroupInviteLinkUsage {
+        int id PK
+        int invite_link_id FK
+        uuid user_id FK
+        datetime used_at
+    }
+
+    Icon {
+        int id PK
+        int group_id FK
+        string name
+        string object_key
+        string bucket
+    }
+
+    Item {
+        int id PK
+        int group_id FK
+        int icon_id FK
+        string name
+        decimal price
+        float stock
+        string unit
+        string price_mode
+    }
+
+    ItemComponent {
+        int parent_item_id PK, FK
+        int child_item_id PK, FK
+        float quantity
+    }
+
+    Transaction {
+        int id PK
+        string type
+        string status
+        uuid initiator_id FK
+        string note
+    }
+
+    Tag {
+        int id PK
+        int group_id FK
+        string name
+    }
+
+    TransactionTag {
+        int id PK
+        int transaction_id FK
+        int tag_id FK
+    }
+
+    OrderItem {
+        int id PK
+        int transaction_id FK
+        int item_id FK
+        int quantity
+        decimal unit_price
+    }
+
+    Entry {
+        int id PK
+        int transaction_id FK
+        int group_id FK
+        uuid user_id FK
+        decimal amount
+    }
+
+    Role ||--o{ Scope : "has permissions"
+
+    Group ||--o{ Role : "has"
+    Role ||--o{ GroupUserRole : "assigned via"
+    Group ||--o{ GroupUserRole : "membership in"
+    GroupUserRole }o--|| User : "has"
+
+    Group ||--o{ Icon : "owns"
+    Icon ||--o{ Item : "visualizes"
+    Group ||--o{ Item : "owns"
+
+    User ||--o{ Entry : "impacts balance of"
+    User ||--o{ Transaction : "creates"
+    Transaction ||--|{ Entry : "generates"
+    Item ||--o{ OrderItem : "sold as"
+    TransactionTag }o--|| Transaction : "tagged with"
+    OrderItem }o--|| Transaction : "contains"
+    Group ||--o{ Entry : "impacts balance of"
+    Group ||--o{ Tag : "manages tags"
+    Tag ||--o{ TransactionTag : "taggs"
+
+    AuditLog }o--|| User : "acts"
+    Group ||--o{ AuditLog : "in"
+
+    Item ||--o{ ItemComponent : "part of"
+    Item ||--o{ ItemComponent : "composed of"
+
+    Group ||--o{ GroupInviteLink : "has"
+    GroupInviteLink }o--|| User : "created by"
+    GroupInviteLinkUsage }o--|| User : "used by"
+    GroupInviteLink ||--o{ GroupInviteLinkUsage : "tracks"
