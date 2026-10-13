@@ -1,0 +1,36 @@
+# LaTeX fordítási melléktermékek
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lol
+*.lot
+*.out
+*.run.xml
+*.thm
+*.toc
+*.xdv
+*.synctex.gz
+*.synctex(busy)*
+
+# Generált PDF (a forrásból bármikor újrafordítható)
+thesis.pdf
+thesis-*.pdf
+
+# Szerkesztők ideiglenes / mentési fájljai
+*.bak
+*.backup
+*.sav
+*~
+*.swp
+*-blx.bib
+
+# Operációs rendszer
+Thumbs.db
+desktop.ini
+.DS_Store
