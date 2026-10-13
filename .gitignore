@@ -19,7 +19,7 @@
 *.synctex(busy)*
 
 # Generált PDF (a forrásból bármikor újrafordítható)
-thesis.pdf
+# thesis.pdf
 thesis-*.pdf
 
 # Szerkesztők ideiglenes / mentési fájljai
