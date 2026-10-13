@@ -6,6 +6,95 @@
 
 % TODO valós igény alapján
 
+\subsection{Ötlet}
+
+A KasszaSCH egy olyan rendszer, amely nyilvántartja az egyes körök belső költségvetését, kezeli a körök által a tagjaiknak kínált termékek (pl.\ körös táborban az italok) készletét, lehetővé teszi a termékek ,,bekattintását'' (azaz a vásárlás rögzítését), valamint kezeli a felhasználók körönkénti digitális egyenlegét.
+
+\subsection{Funkcionalitás}
+
+\subsubsection{Bejelentkezés}
+
+\begin{itemize}
+	\item A felhasználók AuthSCH-val tudnak bejelentkezni.
+	\item Akinek nincs AuthSCH-fiókja, az lokálisan, e-mail-cím és jelszó párossal is bejelentkezhet. Ilyen fiókot a rendszergazdától kell igényelni.
+	\begin{itemize}
+		\item Miután a rendszergazda létrehozta a fiókot, a felhasználó e-mailben kap egy egyszer használható linket, amelyen bejelentkezés nélkül beállíthatja a saját jelszavát. Az ideiglenes jelszót és a linket a rendszergazda is látja, így szükség esetén ő maga is eljuttathatja a felhasználónak.
+		\item A bejelentkezett felhasználó a profilján, a jelenlegi jelszava megadásával módosíthatja a jelszavát.
+		\item Aki elfelejtette a jelszavát, a bejelentkezési oldalon az ,,Elfelejtett jelszó?'' gombbal jelszóbeállító linket kérhet az e-mail-címére.
+		\item A lokális felhasználók alapértelmezetten egyetlen körnek sem tagjai. Körhöz a körvezető által létrehozott meghívóval csatlakozhatnak.
+	\end{itemize}
+\end{itemize}
+
+\noindent\textbf{AuthSCH-bejelentkezés:}
+\begin{itemize}
+	\item Amikor egy körvezető AuthSCH-val bejelentkezik a KasszaSCH-ba, a PÉK\footnote{Profilok és Körök: A Schönherz kollégium egy szolgáltatása, mely a felhasználók profiladatait és a körtagságait kezeli.}-ből (Profilok és Körök) kapott adatok alapján kérelmezheti a körének létrehozását. A rendszergazda a körvezetővel egyeztetve jóváhagyja a kérelmet, ekkor a körvezető admin jogot kap a kör felett, és a kör a tagok számára is láthatóvá válik.
+	\item Amikor egy felhasználó bejelentkezik a KasszaSCH-ba, automatikusan bekerül azoknak a köröknek a tagjai közé, amelyeknek a PÉK szerint tagja, feltéve hogy a kör aktív státuszú. Inaktív kört csak a körvezető lát, a tagok nem.
+\end{itemize}
+
+\subsubsection{Körök (csoportok)}
+
+\noindent\textbf{Státusz:}
+\begin{itemize}
+	\item \textbf{Inaktív:} A kör nem látható a tagoknak, csak a körvezetőnek. A körvezető kérheti a kör aktiválását.
+	\item \textbf{Függőben:} A kör létrehozását vagy aktiválását kérelmezték a rendszergazdánál, de a kérelmet még nem bírálta el. A rendszergazda a körvezetővel egyeztetve hagyja jóvá vagy utasítja el a kérelmet.
+	\item \textbf{Aktív:} A kör látható a tagoknak, a körvezető pedig kezelheti a kör költségvetését, termékeit, tagjait és a körhöz tartozó egyéb adatokat.
+	\item \textbf{Elutasítva:} A rendszergazda elutasította a kör létrehozására vagy aktiválására vonatkozó kérelmet.
+\end{itemize}
+
+\noindent\textbf{Egyszerű felhasználó (nem körtag):}
+\begin{itemize}
+	\item Meghívóval csatlakozhat egy körhöz, ha a körvezető létrehozott egy meghívót, és az még érvényes.
+\end{itemize}
+
+\noindent\textbf{Körtag (csoportfelhasználó):}
+\begin{itemize}
+	\item Egy körben ,,bekattinthat'' (megvásárolhat) egy terméket, ha van rá elegendő egyenlege. A vásárlás a digitális egyenlegén kiadásként jelenik meg.
+	\item Megtekintheti a költéseit az egyes körökben.
+	\item A körös egyenlegéről pénzt utalhat a kör más tagjainak.
+	\item Egyenlegfeltöltést kérhet, miután az összeget eljuttatta a kör által kijelölt gazdaságisnak. A gazdaságis elbírálja a kérést, és jóváhagyás esetén az összeg jóváíródik a felhasználó körös egyenlegén.
+\end{itemize}
+
+\noindent\textbf{Körös admin (körvezető):}
+\begin{itemize}
+	\item Kérelmezheti a kör létrehozását a rendszergazdánál. A jóváhagyás után admin jogot kap a kör felett.
+	\item Feltöltheti a kör bármely tagjának körös egyenlegét. A feltöltés a kör könyvelésében bevételként, a tag digitális egyenlegén jóváírásként jelenik meg.
+	\item Kezelheti a kör termékeit, azok készletét, árát és ikonját (pl.\ Kóla).
+	\item Ikonokat tölthet fel a körhöz és kezelheti azokat, majd termékekhez rendelheti őket.
+	\item A kör tagjai helyett is bekattinthatja az általuk megvásárolt termékeket. Ez a tag egyenlegén kiadásként jelenik meg (pultos funkció).
+	\item Címkéket (tageket) hozhat létre és kezelhet a körben, amelyeket tranzakciókhoz lehet rendelni (pl.\ ,,Nyári tábor kiadás''). A címkék segítségével rendszerezheti a kör tranzakcióit.
+	\item Költségvetési tételeket (kiadást vagy bevételt) vehet fel a körhöz, megjegyzéssel ellátva. Ezek a kör tényleges egyenlegét módosítják.
+	\item A kör egyenlegéből pénzt utalhat egy másik körnek (pl.\ ha az egyik kör vásárol valamit a másiktól).
+	\item Körös rangokat hozhat létre, és ezekhez jogosultságokat rendelhet. Például a pultos jog birtokosa kezelheti a termékeket és bekattinthatja azokat a tagoknak, a gazdaságis jog birtokosa pedig kezelheti a kör egyenlegét és elbírálhatja a tagok feltöltési kérelmeit.
+	\item Rangokat oszthat ki és vonhat vissza a körön belül.
+	\item A körvezetői rang és a hozzá tartozó jogkör AuthSCH-bejelentkezéskor a PÉK-ből szinkronizálódik, ezért a körvezető ezt saját magától nem veheti el. Körvezetőváltáskor az új körvezető a PÉK alapján megkapja a körvezetői jogkört, a korábbi körvezető pedig elveszíti azt, és egyszerű taggá válik. A többi körös rangját azonban megtartja.
+	\item Meghívót hozhat létre, amellyel a felhasználók csatlakozhatnak a körhöz (pl.\ lokális felhasználók, vagy akiknek a tagsága nem szerepel a PÉK-ben). A meghívóhoz lejárati idő és maximális felhasználószám is beállítható.
+	\item Módosíthatja a kör beállításait (hitelkeret, tranzakciós limit). Ezek alapértéke a rendszerszintű beállításokból öröklődik, de a körvezető felülírhatja őket.
+\end{itemize}
+
+\subsubsection{Rendszergazda (ADMIN)}
+
+\begin{itemize}
+	\item Kezelheti a csoportokat (köröket) és azok státuszát.
+	\item Kérelem alapján új csoportot hozhat létre, és ahhoz csoportadmint (körvezetőt) rendelhet, aki meghívóval hívhatja meg a tagokat a csoportba (pl.\ eseményekhez létrehozott külön csoportok).
+	\item Kezelheti a globális rangokat és jogosultságokat: alaprangokat hozhat létre (pl.\ Pultos, Gazdaságis), amelyeket a körök adminjai a saját körükben kioszthatnak.
+	\item Lokális felhasználót hozhat létre azok számára, akik AuthSCH nélkül szeretnének bejelentkezni a KasszaSCH-ba. A lokális felhasználó alapértelmezetten egyetlen körnek sem tagja. Körhöz a körvezető által létrehozott meghívóval csatlakozhat.
+	\item Ha egy felhasználó elfelejtette a jelszavát, a rendszergazda véletlenszerű új jelszót állíthat be neki. Ilyenkor a felhasználó új jelszóbeállító linket is kap.
+	\item Megtekintheti a naplókat (ki, mikor, mit csinált a rendszerben), és ezek alapján auditálhatja a felhasználók tevékenységét.
+	\item Kezelheti a rendszerszintű beállításokat: karbantartási mód, az AuthSCH (SSO) és a lokális bejelentkezés engedélyezése, a regisztráció engedélyezése, valamint az alapértelmezett hitelkeret és tranzakciós limit.
+	\item Megtekintheti a rendszerstatisztikákat (felhasználók, körök, tranzakciók, aktivitás).
+\end{itemize}
+
+\subsubsection{Értesítések}
+
+Az értesítéseket a rendszer az AdminSCH notification-service-én keresztül küldi ki:
+
+\begin{itemize}
+	\item A körvezetők értesítést kapnak, ha egy tag egyenlegfeltöltést kér.
+	\item A tag értesítést kap, ha a feltöltési kérelmét jóváhagyták vagy elutasították.
+	\item A rendszergazdák értesítést kapnak, ha egy körvezető kéri a kör aktiválását.
+	\item A körvezetők értesítést kapnak, ha a kör aktiválását jóváhagyták vagy elutasították.
+\end{itemize}
+
 \section{Architektúrális döntések}
 
 \subsection{Microservice vs Modular Monolith}
