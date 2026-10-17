@@ -2,7 +2,7 @@
 \chapter{Felhasznált technológiák}
 %----------------------------------------------------------------------------
 
-A projekt megvalósításához számos modern technológiát alkalmaztam, amelyek lehetővé tették a hatékony fejlesztést és egy skálázható rendszer kialakítását. 
+A projekt megvalósításához számos modern technológiát alkalmaztam, amelyek lehetővé tették a hatékony fejlesztést és egy skálázható rendszer kialakítását.
 A következőkben részletesen bemutatom az egyes technológiákat és azok szerepét a rendszerben.
 \section{Szerver (Backend)}
 
@@ -14,17 +14,35 @@ A Python \cite{Python} egy magas szintű, általános célú programozási nyelv
 
 A backend (szerver) fejlesztéséhez a FastAPI \cite{FastAPI} keretrendszert választottam, ami egy modern, gyors webkeretrendszer Python nyelven, amely lehetővé teszi REST-ful\footnote{REST: Representational State Transfer} API-k egyszerű fejlesztését. Fő előnye, hogy standard Python típusannotációkat használ és ezzel típusbiztonságot nyújt. Emellett aszinkron működést biztosít az endpointoknak az I/O-intenzív feladatoknál (pl. adatbázis lekérdesék, külső API hívások), gyors fejlesztést tesz lehetővé a beépített validáció és dokumentáció révén, és automatikus Swagger \cite{Swagger} dokumentációt is az endpointoknak\footnote{Endpoint: (magyarul végpont) Egy digitális cím (általában egy URL), amin keresztül a szerver-alkalmazás (API - Application Programming Interface) fogadja a külső kéréseket, és válaszként adatot szolgáltat.}.
 
-\vfill
-
 \subsubsection{PostgreSQL}
+
+Adatbázisnak a PostgreSQL-t \cite{PostgreSQL} választottam, ami egy nyílt forráskódú relációs adatbázis-kezelő rendszer. Azért esett erre a választás, mert a rendszer adatai között sok a kapcsolat, és ezeket relációs adatmodellben, idegen kulcsokkal könnyű volt leképzeni. A pénzmozgások miatt fontos volt az is, hogy az adatbázis tranzakciókezelése megbízható és visszavonható legyen egy tranzakció, ha valami hiba történt. A PostgreSQL ezt teljes mértékben támogatja (ACID\footnote{ACID: Atomicity, Consistency, Isolation, Durability - az adatbázis-tranzakciók négy alapvető tulajdonsága.} tulajdonságok).
+
+Emellett a PostgreSQL-ben van néhány olyan adattípus, amit más adatbázisokban nem, vagy csak körülményesebben lehet használni, például a \texttt{JSONB} típus, amiben strukturálatlan adatot is el lehet tárolni, vagy a natív \texttt{UUID} és \texttt{ENUM} típusok.
 
 \subsubsection{SQLAlchemy}
 
+Az adatbázis-hozzáférés nem nyers SQL-lekérdezésekkel, hanem az SQLAlchemy \cite{SQLAlchemy} könyvtáron keresztül valósítottam meg. Az SQLAlchemy egy ORM\footnote{ORM: Object-Relational Mapping, azaz objektum-relációs leképezés. Az adatbázis tábláit a programkódban osztályokként, a sorokat pedig ezek példányaiként lehet kezelni.} réteget biztosít: az adatbázis táblái Python osztályokként (modellekként) definiálhatók, a lekérdezések pedig Python kifejezésekként fogalmazhatók meg. A típusannotált modelleknek köszönhetően a fejlesztőkörnyezet és a statikus típusellenőrzők már a kód írásakor jelzik a hibás mezőneveket és a típuseltéréseket. A könyvtár emellett paraméterezett lekérdezéseket állít elő, vagyis a paraméterek nem szövegösszefűzéssel kerülnek a lekérdezésbe, ami védelmet nyújt az SQL injection típusú támadásokkal szemben.
+
+Az SQLAlchemy 2.0-s verziója natívan támogatja az aszinkron működést, ami a FastAPI aszinkron endpointjaival együtt lehetővé teszi, hogy a szerver egy adatbázis-művelet várakozási ideje alatt más kéréseket szolgáljon ki. Azokban az esetekben, ahol az ORM által generált lekérdezés nem lenne optimális, az SQLAlchemy Core alacsonyabb szintű, de továbbra is paraméterezett lekérdezésépítést is  lehetővé tesz, nyers SQL használata nélkül.
+
 \subsubsection{Alembic}
+
+A projekt fejlesztése során az adatbázis séma folyamatosan változott: új táblák és oszlopok kerültek bele, régiek módosultak vagy törlődtek. Ezeket a változásokat az Alembic \cite{Alembic} segítségével kezeltem, ami az SQLAlchemy-hez készült migrációs eszköz. Az Alembic a modellosztályok és az aktuális adatbázis összehasonlításával automatikusan legenerálja a migrációs szkriptet (programot), amit utána még kézzel szükség esetén lehet javítani. Minden migráció egy külön Python fájl, amiben szerepel a változtatás végrehajtása (\texttt{upgrade}) és visszavonása (\texttt{downgrade}) is.
+
+Ennek a megoldásnak az a nagy előnye, hogy a séma változásai is verziókövetés alá kerülnek a kóddal együtt, és nem kell kézzel SQL szkripteket futtatni minden egyes változtatás után.
 
 \subsubsection{Pydantic}
 
+A Pydantic \cite{Pydantic} egy típusannotációkon alapuló adatvalidációs könyvtár, amelyre a FastAPI kérés- és válaszkezelése is épül. Egy Pydantic modell (séma) deklaratívan írja le az adatstruktúra mezőit, azok típusát és a rájuk vonatkozó megszorításokat (pl.\ a termék ára nem lehet negatív vagy az email-címnek érvényes formátumúnak kell lennie). Ha egy beérkező kérés törzse nem felel meg a sémának, a FastAPI automatikusan 422-es (Unprocessable Entity) státuszkóddal válaszol, a válaszban pedig megjelöli a hibás mezőket. Ennek eredményeként az endpointok üzleti logikája már validált, a sémának megfelelő adatokkal dolgozik.
+
 \subsection{Object Storage}
+
+A felhasználók és a körök által feltöltött fájlok, elsősorban a termékekhez tartozó ikonok tárolása nem az adatbázisban, hanem egy úgynevezett object storage-ban (objektumtárolóban) valósult meg. Az object storage olyan tárolási modell, amelyben a fájlok (objektumok) egyedi kulccsal azonosítva, egy lapos szerkezetű tárolóban (bucket) helyezkednek el, hierarchikus könyvtárszerkezet nélkül.
+
+A legelterjedtebb ilyen szolgáltatás az Amazon S3 \cite{S3}, amelynek API-ja mára mondhatni szabvánnyá vált. A rendszer egy S3-kompatibilis tárolót használ, így a szerver kódja nem kötődik egy konkrét szolgáltatóhoz, és a tárolási háttér szükség esetén kis ráfordítással lecserélhető.
+
+A képek adatbázison kívüli tárolását az indokolta, hogy a nagyobb bináris adatok jelentősen növelnék az adatbázis méretét, lassítanák a mentéseket, és minden letöltés a szerver erőforrásait terhelné. Object storage használata esetén a kliens előre beállított URL-en keresztül közvetlenül a tárolóból töltheti le a fájlokat, így a képek kiszolgálása nem terheli a szervert.
 
 \subsection{Representational State Transfer (REST)}
 
