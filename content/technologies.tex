@@ -46,7 +46,32 @@ A képek adatbázison kívüli tárolását az indokolta, hogy a nagyobb binári
 
 \subsection{Representational State Transfer (REST)}
 
+A kliens és a szerver közötti kommunikáció a REST \cite{REST} elveit követi. A REST nem konkrét protokoll vagy könyvtár, hanem architekturális stílus, amelyet Roy Fielding fogalmazott meg 2000-ben megjelent doktori disszertációjában \cite{Fielding}. Alapgondolata, hogy a szerver által kezelt adatok erőforrásokként jelennek meg, amelyeket egy-egy URL azonosít (pl.\ \texttt{/groups/\{id\}/items}), az erőforrásokon végzett műveleteket pedig a HTTP metódusok fejezik ki:
+
+\begin{itemize}
+	\item \texttt{GET} -- erőforrás lekérdezése,
+	\item \texttt{POST} -- új erőforrás létrehozása,
+	\item \texttt{PUT} / \texttt{PATCH} -- meglévő erőforrás teljes vagy részleges módosítása,
+	\item \texttt{DELETE} -- erőforrás törlése.
+\end{itemize}
+
+További alapelv az állapotmentesség: a szerver nem tárol a klienshez tartozó munkamenet-állapotot, ezért minden kérésnek tartalmaznia kell a kiszolgálásához szükséges összes információt (például a felhasználót azonosító tokent). A művelet eredményét a szerver HTTP státuszkóddal jelzi (pl.\ 200 -- sikeres, 201 -- létrehozva, 404 -- nem található, 403 -- nincs jogosultság). Az adatcsere a kérések és válaszok törzsében JSON formátumban történik.
+
+A REST-alapú megközelítés mellett szólt egyszerűsége és széles körű elterjedtsége, valamint az, hogy a FastAPI is erre a modellre épül, és ugyanazt az API-t a mobil- és a webes kliens egyaránt használhatja.
+
 \subsection{JSON Web Token (JWT)}
+
+A bejelentkezett felhasználók azonosítása JSON Web Tokenek (JWT) \cite{JWT} segítségével történik. A JWT az RFC 7519-ben definiált szabványos formátum, amely három, ponttal elválasztott részből áll:
+
+\begin{itemize}
+	\item \textbf{Header:} a token típusát és az aláíráshoz használt algoritmust tartalmazza,
+	\item \textbf{Payload:} az úgynevezett claim-eket tartalmazza, például a felhasználó azonosítóját (\texttt{sub}) és a lejárati időt (\texttt{exp}),
+	\item \textbf{Signature:} az előző két rész digitális aláírása, amely csak a szerver titkos kulcsával állítható elő.
+\end{itemize}
+
+A három rész Base64URL kódolású, tehát a tartalmuk nem titkosított, bárki által dekódolható, ezért a payload érzékeny adatot nem tartalmazhat. Az aláírás ugyanakkor garantálja a token integritását, mivel a tartalom bármilyen módosítása az aláírás ellenőrzésekor kiderül. Sikeres bejelentkezéskor a szerver tokent állít ki a felhasználónak, amelyet a kliens minden további HTTP kérés \texttt{Authorization} fejlécében (Header) elküld. A szervernek így nem szükséges kérésenként az adatbázisból lekérdeznie a munkamenetet, elegendő az aláírást és a lejárati időt ellenőriznie, ami összhangban van a REST állapotmentességi elvével.
+
+A JWT egyik hátránya, hogy egy kiállított token a lejárata előtt nem vonható vissza egyszerűen. A rendszer ezt kétféle token alkalmazásával kezeli: a hozzáférési token (access token) rövid élettartamú, mellette a kliens egy hosszabb lejáratú frissítő tokent (refresh token) is kap, amellyel új hozzáférési token igényelhető.
 
 \subsection{OAuth2.0}
 
